@@ -1,8 +1,6 @@
 package dev.rabbit;
 
 import com.google.api.client.json.GenericJson;
-import com.google.api.services.bigquery.model.TableRow;
-import dev.rabbit.Rules.InactivePool;
 import dev.rabbit.Rules.Rule;
 import dev.rabbit.transform.FilterPools;
 import org.apache.beam.sdk.Pipeline;
@@ -14,11 +12,9 @@ import org.apache.beam.sdk.values.TypeDescriptors;
 import java.util.List;
 
 public class PoolRefinerPipeline {
-    public static void run(PoolRefinerPipelineOptions options) {
+    public static void run(PoolRefinerPipelineOptions options, List<Rule> rules) {
 
         Pipeline pipeline = Pipeline.create(options);
-
-        List<Rule<TableRow>> rules = List.of(new InactivePool());
 
         pipeline.apply("Query for initial set of pools", BigQueryIO.readTableRows()
                         .fromQuery(options.getQueryString())

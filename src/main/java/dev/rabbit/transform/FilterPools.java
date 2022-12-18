@@ -21,17 +21,17 @@ import java.util.List;
 @AllArgsConstructor
 public class FilterPools extends PTransform<PCollection<TableRow>, PCollection<TableRow>> {
 
-    private final List<Rule<TableRow>> rules;
+    private final List<Rule> rules;
     private final ValueProvider<Integer> maxRPCBatchSize;
 
-    public static FilterPools of(List<Rule<TableRow>> rules, ValueProvider<Integer> maxRPCBatchSize) {
+    public static FilterPools of(List<Rule> rules, ValueProvider<Integer> maxRPCBatchSize) {
         return new FilterPools(rules, maxRPCBatchSize);
     }
 
     @Override
     public PCollection<TableRow> expand(PCollection<TableRow> input) {
         PCollection<KV<String, TableRow>> collection = input.apply(WithKeys.of(""));
-        for (Rule<TableRow> rule : rules) {
+        for (Rule rule : rules) {
             collection = collection.apply(ParDo.of(
                     new DoFn<KV<String, TableRow>, KV<String, TableRow>>() {
                         @StateId("buffer")
