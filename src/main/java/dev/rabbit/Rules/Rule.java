@@ -11,7 +11,7 @@ import java.util.List;
 @FunctionalInterface
 public interface Rule {
     static List<Rule> getRules() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        Iterator<Class<? extends Rule>> ruleSet = new Reflections("dev.rabbit.Rules").getSubTypesOf(Rule.class).iterator();
+        Iterator<Class<? extends Rule>> ruleSet = new Reflections("dev.rabbit").getSubTypesOf(Rule.class).iterator();
         List<Rule> rules = new ArrayList<>();
         while (ruleSet.hasNext()) rules.add(ruleSet.next().getConstructor().newInstance());
         return rules;
