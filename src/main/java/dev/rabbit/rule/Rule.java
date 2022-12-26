@@ -1,8 +1,9 @@
-package dev.rabbit.Rules;
+package dev.rabbit.rule;
 
 import com.google.api.services.bigquery.model.TableRow;
 import org.reflections.Reflections;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,5 +18,5 @@ public interface Rule {
         return rules;
     }
 
-    Iterable<TableRow> applyRule(Iterable<TableRow> t);
+    Iterable<TableRow> applyRule(Iterable<TableRow> t) throws IOException;
 }

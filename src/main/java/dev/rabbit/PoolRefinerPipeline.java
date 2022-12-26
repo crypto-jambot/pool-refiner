@@ -1,13 +1,9 @@
 package dev.rabbit;
 
-import com.google.api.client.json.GenericJson;
-import dev.rabbit.Rules.Rule;
+import dev.rabbit.rule.Rule;
 import dev.rabbit.transform.FilterPools;
 import org.apache.beam.sdk.Pipeline;
-import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
-import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.values.TypeDescriptors;
 
 import java.util.List;
 
@@ -21,8 +17,10 @@ public class PoolRefinerPipeline {
                         .withoutValidation()
                         .usingStandardSql())
                 .apply("Apply a set of rules that filter out undesirable pools", FilterPools.of(rules, options.getRPCBatchSize()))
-                .apply(MapElements.into(TypeDescriptors.strings()).via(GenericJson::toString))
-                .apply(TextIO.write().to("output/test.jsonl").withoutSharding());
+                .apply("Write remaining pools to the refined pools table after truncating.", BigQueryIO.writeTableRows()
+                        .to(options.getDestinationTable())
+                        .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
+                        .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_TRUNCATE));
 
         pipeline.run();
     }

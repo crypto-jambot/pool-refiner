@@ -1,7 +1,7 @@
 package dev.rabbit.transform;
 
 import com.google.api.services.bigquery.model.TableRow;
-import dev.rabbit.Rules.Rule;
+import dev.rabbit.rule.Rule;
 import lombok.AllArgsConstructor;
 import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.state.BagState;
@@ -16,6 +16,7 @@ import org.apache.beam.sdk.transforms.WithKeys;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 
+import java.io.IOException;
 import java.util.List;
 
 @AllArgsConstructor
@@ -43,7 +44,7 @@ public class FilterPools extends PTransform<PCollection<TableRow>, PCollection<T
                         public void processElement(@Element KV<String, TableRow> element,
                                                    OutputReceiver<KV<String, TableRow>> out,
                                                    @StateId("buffer") BagState<TableRow> bufferState,
-                                                   @StateId("count") ValueState<Integer> countState) {
+                                                   @StateId("count") ValueState<Integer> countState) throws IOException {
                             int count = countState.read() != null ? countState.read() : 0;
                             count++;
                             countState.write(count);

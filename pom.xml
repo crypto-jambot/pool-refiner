@@ -18,6 +18,7 @@
         <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
+        <web3j.version>4.9.4</web3j.version>
     </properties>
 
     <build>
@@ -31,7 +32,6 @@
                     <target>11</target>
                 </configuration>
             </plugin>
-
             <!-- Ensure that the Maven jar plugin runs before the Maven
               shade plugin by listing the plugin higher within the file. -->
             <plugin>
@@ -39,11 +39,6 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven-jar-plugin.version}</version>
             </plugin>
-
-            <!--
-              Configures `mvn package` to produce a bundled jar ("fat jar") for runners
-              that require this for job submission to a cluster.
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -83,21 +78,16 @@
     </build>
 
     <dependencies>
-        <!-- Adds a dependency on the Beam SDK. -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-core</artifactId>
             <version>${beam.version}</version>
         </dependency>
-
-        <!-- Adds a dependency on the Beam Google Cloud Platform IO module. -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>
             <version>${beam.version}</version>
         </dependency>
-
-        <!-- The DirectRunner is needed for unit tests. -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-direct-java</artifactId>
@@ -113,6 +103,21 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>${reflections.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.web3j</groupId>
+            <artifactId>core</artifactId>
+            <version>${web3j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.rabbit</groupId>
+            <artifactId>contract-utils</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-secretmanager</artifactId>
+            <version>2.7.0</version>
         </dependency>
     </dependencies>
 </project>

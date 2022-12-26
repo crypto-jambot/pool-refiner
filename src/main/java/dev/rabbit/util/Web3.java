@@ -1,0 +1,93 @@
+package dev.rabbit.util;
+
+import dev.rabbit.exception.RefreshTokenFailure;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
+import org.web3j.protocol.core.methods.response.EthBlock;
+import org.web3j.protocol.http.HttpService;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static dev.rabbit.util.Constant.PROJECT_ID;
+import static dev.rabbit.util.Constant.SECRET_VERSION;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class Web3 {
+    private static final String NODE_ENDPOINT = "https://rabbit.dev";
+    private static final String AUTH_ENDPOINT = NODE_ENDPOINT + "/auth";
+    private static final String API_KEY = Secret.getSecret(PROJECT_ID, "api-secret-key", SECRET_VERSION);
+    private static final OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.MINUTES)
+            .writeTimeout(10, TimeUnit.MINUTES)
+            .readTimeout(10, TimeUnit.MINUTES)
+            .build();
+    private static final HttpService httpService = new HttpService(NODE_ENDPOINT, client);
+    private static Long exp = null;
+    private static final Web3j instance = init();
+
+    public static Web3j getInstance() {
+        if (isExpired()) refreshToken();
+        return instance;
+    }
+
+    public static long getBlockByTimestamp(long epochSeconds) throws IOException {
+        if (isExpired()) refreshToken();
+        long minBlockNumber = 0;
+        long maxBlockNumber = instance.ethBlockNumber().send().getBlockNumber().longValue();
+
+        long midBlockNumber = Math.floorDiv(minBlockNumber + maxBlockNumber, 2);
+        EthBlock.Block midBlock = instance.ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(midBlockNumber)), true).send().getBlock();
+
+        while (minBlockNumber <= maxBlockNumber) {
+            if (midBlock.getTimestamp().longValue() == epochSeconds) {
+                break;
+            }
+
+            if (midBlock.getTimestamp().longValue() > epochSeconds) {
+                maxBlockNumber = midBlockNumber - 1;
+            } else {
+                minBlockNumber = midBlockNumber + 1;
+            }
+
+            midBlockNumber = Math.floorDiv(minBlockNumber + maxBlockNumber, 2);
+            midBlock = instance.ethGetBlockByNumber(DefaultBlockParameter.valueOf(BigInteger.valueOf(midBlockNumber)), true).send().getBlock();
+        }
+        return midBlockNumber;
+    }
+
+    private static Web3j init() {
+        refreshToken();
+        return Web3j.build(httpService);
+    }
+
+    private static void refreshToken() {
+        final String ERR_PREFIX = "Failed to refresh an access-token";
+        final Request request = new Request.Builder()
+                .url(AUTH_ENDPOINT)
+                .addHeader("api-key", API_KEY)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            assert response.body() != null;
+            Map<String, Object> responseMap = Mapper.INSTANCE.readJson(response.body().string());
+            Map<String, Object> tokenObj = (Map<String, Object>) responseMap.get("token");
+            exp = ((Integer) tokenObj.get("exp")).longValue();
+            String accessToken = (String) tokenObj.get("token");
+            httpService.addHeader("access-token", accessToken);
+        } catch (IOException e) {
+            throw new RefreshTokenFailure(ERR_PREFIX + "while sending a request to get a JWT.", e);
+        }
+    }
+
+    private static boolean isExpired() {
+        return (exp - Instant.now().getEpochSecond()) / 60 <= 30;
+    }
+}
