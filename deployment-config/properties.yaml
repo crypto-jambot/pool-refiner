@@ -1,0 +1,14 @@
+environment:
+  machineType: n1-standard-1
+  numWorkers: 1
+  maxWorkers: 1
+  tempLocation: dataflowTempLocation
+  ipConfiguration: WORKER_IP_PRIVATE
+  additionalExperiments: [ ]
+  subnetwork: subnetwork
+  network: network
+  serviceAccountEmail: pool-refiner@crypto-351521.iam.gserviceaccount.com
+parameters:
+  queryString: SELECT * FROM `crypto-351521.ethereum_v2.unrefined_pools`
+  destinationTable: crypto-351521:ethereum_v2.refined_pools
+  rpcBatchSize: 1000

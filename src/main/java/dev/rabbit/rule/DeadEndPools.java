@@ -1,0 +1,65 @@
+package dev.rabbit.rule;
+
+import com.google.api.services.bigquery.model.TableRow;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class DeadEndPools implements Rule {
+
+    private static HashMap<String, Integer> deriveTokens(List<TableRow> pools) {
+        HashMap<String, Integer> tokens = new HashMap<>();
+        pools.forEach(pool -> {
+            String token0Address = (String) pool.get("token0Address");
+            String token1Address = (String) pool.get("token1Address");
+            addTokens(tokens, token0Address, token1Address);
+        });
+        return tokens;
+    }
+
+    private static HashMap<String, Integer> filterTokens(Map<String, Integer> tokens, Predicate<Map.Entry<String, Integer>> predicate) {
+        Stream<Map.Entry<String, Integer>> stream = tokens.entrySet().stream().filter(predicate);
+        return (HashMap<String, Integer>) stream.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public static List<TableRow> toList(Iterable<TableRow> rows) {
+        if (rows instanceof List) return new ArrayList<>((List<TableRow>) rows);
+        List<TableRow> rowsList = new ArrayList<>();
+        rows.forEach(rowsList::add);
+        return rowsList;
+    }
+
+    public static void addTokens(HashMap<String, Integer> tokens, String... addressParams) {
+        List<String> addresses = List.of(addressParams);
+        addresses.forEach(address -> {
+            if (tokens.containsKey(address)) {
+                tokens.put(address, tokens.get(address) + 1);
+            } else {
+                tokens.put(address, 1);
+            }
+        });
+    }
+
+    @Override
+    public FilterType getFilterType() {
+        return FilterType.ALL;
+    }
+
+    @Override
+    public Iterable<TableRow> applyRule(Iterable<TableRow> elements) {
+        List<TableRow> rows = toList(elements);
+        HashMap<String, Integer> deadTokens = filterTokens(deriveTokens(rows), token -> token.getValue() == 1);
+
+        while (deadTokens.size() > 0) {
+            HashMap<String, Integer> deadTokensCopy = deadTokens;
+            rows.removeIf(row -> deadTokensCopy.containsKey((String) row.get("token0Address")) || deadTokensCopy.containsKey((String) row.get("token1Address")));
+            deadTokens = filterTokens(deriveTokens(rows), token -> token.getValue() == 1);
+        }
+        return rows;
+    }
+}

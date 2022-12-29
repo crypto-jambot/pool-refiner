@@ -1,22 +1,19 @@
 package dev.rabbit.transform;
 
 import com.google.api.services.bigquery.model.TableRow;
+import dev.rabbit.doFn.AllDoFn;
+import dev.rabbit.doFn.BatchDoFn;
+import dev.rabbit.doFn.SingleDoFn;
 import dev.rabbit.rule.Rule;
 import lombok.AllArgsConstructor;
 import org.apache.beam.sdk.options.ValueProvider;
-import org.apache.beam.sdk.state.BagState;
-import org.apache.beam.sdk.state.StateSpec;
-import org.apache.beam.sdk.state.StateSpecs;
-import org.apache.beam.sdk.state.ValueState;
-import org.apache.beam.sdk.transforms.DoFn;
+import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.transforms.WithKeys;
-import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 
-import java.io.IOException;
 import java.util.List;
 
 @AllArgsConstructor
@@ -31,35 +28,25 @@ public class FilterPools extends PTransform<PCollection<TableRow>, PCollection<T
 
     @Override
     public PCollection<TableRow> expand(PCollection<TableRow> input) {
-        PCollection<KV<String, TableRow>> collection = input.apply(WithKeys.of(""));
+        PCollection<TableRow> collection = input;
         for (Rule rule : rules) {
-            collection = collection.apply(ParDo.of(
-                    new DoFn<KV<String, TableRow>, KV<String, TableRow>>() {
-                        @StateId("buffer")
-                        private final StateSpec<BagState<TableRow>> buffer = StateSpecs.bag();
-                        @StateId("count")
-                        private final StateSpec<ValueState<Integer>> count = StateSpecs.value();
-
-                        @ProcessElement
-                        public void processElement(@Element KV<String, TableRow> element,
-                                                   OutputReceiver<KV<String, TableRow>> out,
-                                                   @StateId("buffer") BagState<TableRow> bufferState,
-                                                   @StateId("count") ValueState<Integer> countState) throws IOException {
-                            int count = countState.read() != null ? countState.read() : 0;
-                            count++;
-                            countState.write(count);
-                            bufferState.add(element.getValue());
-
-                            if (count >= maxRPCBatchSize.get()) {
-                                Iterable<TableRow> filtered = rule.applyRule(bufferState.read());
-                                for (TableRow row : filtered) out.output(KV.of("", row));
-                                bufferState.clear();
-                                countState.clear();
-                            }
-                        }
-                    }
-            ));
+            switch (rule.getFilterType()) {
+                case BATCH:
+                    collection = collection
+                            .apply(WithKeys.of(""))
+                            .apply(ParDo.of(BatchDoFn.of(maxRPCBatchSize, rule)))
+                            .apply(Values.create());
+                    break;
+                case ALL:
+                    collection = collection
+                            .apply(Combine.globally(CombineToList.of()))
+                            .apply(ParDo.of(AllDoFn.of(rule)));
+                    break;
+                case SINGLE:
+                    collection = collection
+                            .apply(ParDo.of(SingleDoFn.of(rule)));
+            }
         }
-        return collection.apply(Values.create());
+        return collection;
     }
 }
