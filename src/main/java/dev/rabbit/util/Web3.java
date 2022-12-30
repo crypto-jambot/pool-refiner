@@ -17,14 +17,11 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static dev.rabbit.util.Constant.PROJECT_ID;
-import static dev.rabbit.util.Constant.SECRET_VERSION;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Web3 {
     private static final String NODE_ENDPOINT = "https://rabbit.dev";
     private static final String AUTH_ENDPOINT = NODE_ENDPOINT + "/auth";
-    private static final String API_KEY = Secret.getSecret(PROJECT_ID, "api-secret-key", SECRET_VERSION);
+    private static final String API_KEY = Secret.getSecret("crypto-351521", "api-secret-key");
     private static final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.MINUTES)
             .writeTimeout(10, TimeUnit.MINUTES)
@@ -70,7 +67,6 @@ public class Web3 {
     }
 
     private static void refreshToken() {
-        final String ERR_PREFIX = "Failed to refresh an access-token";
         final Request request = new Request.Builder()
                 .url(AUTH_ENDPOINT)
                 .addHeader("api-key", API_KEY)
@@ -83,7 +79,7 @@ public class Web3 {
             String accessToken = (String) tokenObj.get("token");
             httpService.addHeader("access-token", accessToken);
         } catch (IOException e) {
-            throw new RefreshTokenFailure(ERR_PREFIX + "while sending a request to get a JWT.", e);
+            throw new RefreshTokenFailure("Failed to refresh an access-token while sending a request to get a JWT.", e);
         }
     }
 

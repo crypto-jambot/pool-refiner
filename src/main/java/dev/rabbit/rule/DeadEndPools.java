@@ -1,6 +1,7 @@
 package dev.rabbit.rule;
 
 import com.google.api.services.bigquery.model.TableRow;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,5 +62,10 @@ public class DeadEndPools implements Rule {
             deadTokens = filterTokens(deriveTokens(rows), token -> token.getValue() == 1);
         }
         return rows;
+    }
+
+    @Override
+    public int compareTo(@NotNull Rule o) {
+        return 1;
     }
 }

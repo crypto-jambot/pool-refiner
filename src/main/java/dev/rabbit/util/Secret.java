@@ -29,4 +29,8 @@ public class Secret {
             throw new RetrieveSecretFailure(ERR_PREFIX, e);
         }
     }
+
+    public static String getSecret(String projectId, String secretName) {
+        return getSecret(projectId, secretName, "latest");
+    }
 }

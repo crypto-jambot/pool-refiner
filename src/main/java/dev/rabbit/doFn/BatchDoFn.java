@@ -18,15 +18,15 @@ public class BatchDoFn extends DoFn<KV<String, TableRow>, KV<String, TableRow>> 
     @StateId("count")
     private final StateSpec<ValueState<Integer>> count = StateSpecs.value();
     private final Rule rule;
-    private final ValueProvider<Integer> maxRPCBatchSize;
+    private final ValueProvider<Integer> maxRpcBatchSize;
 
-    private BatchDoFn(ValueProvider<Integer> maxRPCBatchSize, Rule rule) {
-        this.maxRPCBatchSize = maxRPCBatchSize;
+    private BatchDoFn(ValueProvider<Integer> maxRpcBatchSize, Rule rule) {
+        this.maxRpcBatchSize = maxRpcBatchSize;
         this.rule = rule;
     }
 
-    public static BatchDoFn of(ValueProvider<Integer> maxRPCBatchSize, Rule rule) {
-        return new BatchDoFn(maxRPCBatchSize, rule);
+    public static BatchDoFn of(ValueProvider<Integer> maxRpcBatchSize, Rule rule) {
+        return new BatchDoFn(maxRpcBatchSize, rule);
     }
 
     @ProcessElement
@@ -39,7 +39,7 @@ public class BatchDoFn extends DoFn<KV<String, TableRow>, KV<String, TableRow>> 
         countState.write(count);
         bufferState.add(element.getValue());
 
-        if (count >= maxRPCBatchSize.get()) {
+        if (count >= maxRpcBatchSize.get()) {
             Iterable<TableRow> filtered = rule.applyRule(bufferState.read());
             for (TableRow row : filtered) out.output(KV.of("", row));
             bufferState.clear();

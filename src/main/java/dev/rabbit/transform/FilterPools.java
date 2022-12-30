@@ -20,7 +20,7 @@ import java.util.List;
 public class FilterPools extends PTransform<PCollection<TableRow>, PCollection<TableRow>> {
 
     private final List<Rule> rules;
-    private final ValueProvider<Integer> maxRPCBatchSize;
+    private final ValueProvider<Integer> maxRpcBatchSize;
 
     public static FilterPools of(List<Rule> rules, ValueProvider<Integer> maxRPCBatchSize) {
         return new FilterPools(rules, maxRPCBatchSize);
@@ -34,7 +34,7 @@ public class FilterPools extends PTransform<PCollection<TableRow>, PCollection<T
                 case BATCH:
                     collection = collection
                             .apply(WithKeys.of(""))
-                            .apply(ParDo.of(BatchDoFn.of(maxRPCBatchSize, rule)))
+                            .apply(ParDo.of(BatchDoFn.of(maxRpcBatchSize, rule)))
                             .apply(Values.create());
                     break;
                 case ALL:

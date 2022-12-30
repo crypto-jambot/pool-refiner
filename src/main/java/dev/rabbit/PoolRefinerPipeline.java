@@ -16,7 +16,7 @@ public class PoolRefinerPipeline {
                         .fromQuery(options.getQueryString())
                         .withoutValidation()
                         .usingStandardSql())
-                .apply("Apply a set of rules that filter out undesirable pools", FilterPools.of(rules, options.getRPCBatchSize()))
+                .apply("Apply a set of rules that filter out undesirable pools", FilterPools.of(rules, options.getRpcBatchSize()))
                 .apply("Write remaining pools to the refined pools table after truncating.", BigQueryIO.writeTableRows()
                         .to(options.getDestinationTable())
                         .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
