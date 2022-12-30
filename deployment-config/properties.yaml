@@ -1,0 +1,11 @@
+environment:
+  numWorkers: 1
+  maxWorkers: 1
+  tempLocation: gs://pool-refiner-dfjob/temp
+  ipConfiguration: WORKER_IP_PRIVATE
+  serviceAccountEmail: pool-refiner@crypto-351521.iam.gserviceaccount.com
+parameters:
+  gcpProject: crypto-351521
+  queryString: SELECT * FROM `crypto-351521.ethereum_v2.unrefined_pools`
+  destinationTable: crypto-351521:ethereum_v2.refined_pools
+  rpcBatchSize: 100
