@@ -2,7 +2,7 @@ environment:
   numWorkers: 1
   maxWorkers: 1
   tempLocation: gs://pool-refiner-dfjob/temp
-  ipConfiguration: WORKER_IP_PRIVATE
+  ipConfiguration: WORKER_IP_UNSPECIFIED
   serviceAccountEmail: pool-refiner@crypto-351521.iam.gserviceaccount.com
   subnetwork: https://www.googleapis.com/compute/v1/projects/crypto-351521/regions/us-central1/subnetworks/default
 
