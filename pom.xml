@@ -87,13 +87,26 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>contract-utils</id>
-            <!--suppress UnresolvedMavenProperty -->
-            <url>https://x-access-token:${{ env.ACCESS_TOKEN }}@github.com/crypto-jambot/contract-utils</url>
-        </repository>
-    </repositories>
+    <profiles>
+        <profile>
+            <id>github</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+                <repository>
+                    <id>github</id>
+                    <name>contract-utils</name>
+                    <url>https://maven.pkg.github.com/crypto-jambot/contract-utils</url>
+                    <snapshots><enabled>true</enabled></snapshots>
+                    <releases><enabled>true</enabled></releases>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
