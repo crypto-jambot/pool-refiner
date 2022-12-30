@@ -4,7 +4,7 @@
 
     <groupId>dev.rabbit</groupId>
     <artifactId>pool-refiner</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
 
     <packaging>jar</packaging>
 
@@ -24,7 +24,7 @@
         <connection>scm:git:${connection}</connection>
         <developerConnection>scm:git:${connection}</developerConnection>
         <url>${connection}</url>
-        <tag>HEAD</tag>
+        <tag>pool-refiner-1.0.3</tag>
     </scm>
 
     <build>
