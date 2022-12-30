@@ -4,8 +4,8 @@ environment:
   tempLocation: gs://pool-refiner-dfjob/temp
   ipConfiguration: WORKER_IP_PRIVATE
   serviceAccountEmail: pool-refiner@crypto-351521.iam.gserviceaccount.com
-  network: projects/crypto-351521/global/networks/default
-  subnetwork: projects/crypto-351521/regions/us-central1/subnetworks/default
+  subnetwork: https://www.googleapis.com/compute/v1/projects/crypto-351521/regions/us-central1/subnetworks/default
+
 parameters:
   gcpProject: crypto-351521
   queryString: SELECT * FROM `crypto-351521.ethereum_v2.unrefined_pools`
