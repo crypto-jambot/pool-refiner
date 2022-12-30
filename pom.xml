@@ -69,6 +69,16 @@
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>reference.conf</resource>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>dev.rabbit.App</Main-Class>
+                                        <Specification-Title>${project.artifactId}</Specification-Title>
+                                        <Specification-Version>${project.version}</Specification-Version>
+                                        <Implementation-Title>${project.artifactId}</Implementation-Title>
+                                        <Implementation-Version>${project.version}</Implementation-Version>
+                                        <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+                                    </manifestEntries>
+                                </transformer>
                             </transformers>
                         </configuration>
                     </execution>
@@ -76,6 +86,14 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>contract-utils</id>
+            <!--suppress UnresolvedMavenProperty -->
+            <url>https://x-access-token:${{ env.ACCESS_TOKEN }}@github.com/crypto-jambot/contract-utils</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -86,6 +104,11 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>
+            <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
             <version>${beam.version}</version>
         </dependency>
         <dependency>
