@@ -19,7 +19,15 @@
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
         <web3j.version>4.9.4</web3j.version>
+        <connection>https://github.com/crypto-jambot/pool-refiner.git</connection>
     </properties>
+
+    <scm>
+        <connection>scm:git:${connection}</connection>
+        <developerConnection>scm:git:${connection}</developerConnection>
+        <url>${connection}</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <build>
         <plugins>
