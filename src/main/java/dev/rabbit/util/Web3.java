@@ -19,8 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Web3 {
-    private static final String NODE_ENDPOINT = "https://rabbit.dev";
-    private static final String AUTH_ENDPOINT = NODE_ENDPOINT + "/auth";
+    private static final String DOMAIN = "https://rabbit.dev";
+    private static final String NODE_ENDPOINT = DOMAIN + "/http";
+    private static final String AUTH_ENDPOINT = DOMAIN + "/auth";
     private static final String API_KEY = Secret.getSecret("crypto-351521", "api-secret-key");
     private static final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.MINUTES)
@@ -77,7 +78,7 @@ public class Web3 {
             Map<String, Object> tokenObj = (Map<String, Object>) responseMap.get("token");
             exp = ((Integer) tokenObj.get("exp")).longValue();
             String accessToken = (String) tokenObj.get("token");
-            httpService.addHeader("access-token", accessToken);
+            httpService.addHeader("Authorization", String.format("Bearer %s", accessToken));
         } catch (IOException e) {
             throw new RefreshTokenFailure("Failed to refresh an access-token while sending a request to get a JWT.", e);
         }
