@@ -10,7 +10,6 @@ import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.Values;
 import org.apache.beam.sdk.transforms.WithKeys;
 import org.apache.beam.sdk.values.PCollection;
 
@@ -34,8 +33,7 @@ public class FilterPools extends PTransform<PCollection<TableRow>, PCollection<T
                 case BATCH:
                     collection = collection
                             .apply(WithKeys.of(""))
-                            .apply(ParDo.of(BatchDoFn.of(maxRpcBatchSize, rule)))
-                            .apply(Values.create());
+                            .apply(ParDo.of(BatchDoFn.of(maxRpcBatchSize, rule)));
                     break;
                 case ALL:
                     collection = collection

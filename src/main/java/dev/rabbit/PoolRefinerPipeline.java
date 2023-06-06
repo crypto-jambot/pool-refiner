@@ -17,11 +17,11 @@ public class PoolRefinerPipeline {
                         .withoutValidation()
                         .withTemplateCompatibility()
                         .usingStandardSql())
-                .apply("Apply a set of rules that filter out undesirable pools", FilterPools.of(rules, options.getRpcBatchSize()))
-                .apply("Write remaining pools to the refined pools table after truncating.", BigQueryIO.writeTableRows()
-                        .to(options.getDestinationTable())
-                        .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
-                        .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_TRUNCATE));
+                .apply("Apply a set of rules that filter out undesirable pools", FilterPools.of(rules, options.getRpcBatchSize()));
+//                .apply("Write remaining pools to the refined pools table after truncating.", BigQueryIO.writeTableRows()
+//                        .to(options.getDestinationTable())
+//                        .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_NEVER)
+//                        .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_TRUNCATE));
 
         pipeline.run();
     }

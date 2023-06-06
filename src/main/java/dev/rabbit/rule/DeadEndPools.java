@@ -3,13 +3,14 @@ package dev.rabbit.rule;
 import com.google.api.services.bigquery.model.TableRow;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static dev.rabbit.util.ListUtils.toList;
 
 public class DeadEndPools implements Rule {
 
@@ -26,13 +27,6 @@ public class DeadEndPools implements Rule {
     private static HashMap<String, Integer> filterTokens(Map<String, Integer> tokens, Predicate<Map.Entry<String, Integer>> predicate) {
         Stream<Map.Entry<String, Integer>> stream = tokens.entrySet().stream().filter(predicate);
         return (HashMap<String, Integer>) stream.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    public static List<TableRow> toList(Iterable<TableRow> rows) {
-        if (rows instanceof List) return new ArrayList<>((List<TableRow>) rows);
-        List<TableRow> rowsList = new ArrayList<>();
-        rows.forEach(rowsList::add);
-        return rowsList;
     }
 
     public static void addTokens(HashMap<String, Integer> tokens, String... addressParams) {
