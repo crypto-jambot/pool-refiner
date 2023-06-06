@@ -21,24 +21,32 @@ import java.util.concurrent.TimeUnit;
 public class Web3 {
     private static final String DOMAIN = "https://rabbit.dev";
     private static final String NODE_ENDPOINT = DOMAIN + "/http";
-    private static final String AUTH_ENDPOINT = DOMAIN + "/auth";
-    private static final String API_KEY = Secret.getSecret("crypto-351521", "api-secret-key");
+    private static final HttpService httpService;
+    private static final Web3j instance = init();
     private static final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.MINUTES)
             .writeTimeout(10, TimeUnit.MINUTES)
             .readTimeout(10, TimeUnit.MINUTES)
             .build();
-    private static final HttpService httpService = new HttpService(NODE_ENDPOINT, client);
+    private static final String AUTH_ENDPOINT = DOMAIN + "/auth";
+    private static final String API_KEY = Secret.getSecret("crypto-351521", "api-secret-key");
     private static Long exp = null;
-    private static final Web3j instance = init();
+
+    static {
+        httpService = new HttpService(NODE_ENDPOINT, client);
+    }
 
     public static Web3j getInstance() {
-        if (isExpired()) refreshToken();
+//        if (isExpired()) refreshToken();
         return instance;
     }
 
+    public static HttpService getHttpService() {
+        return httpService;
+    }
+
     public static long getBlockByTimestamp(long epochSeconds) throws IOException {
-        if (isExpired()) refreshToken();
+//        if (isExpired()) refreshToken();
         long minBlockNumber = 0;
         long maxBlockNumber = instance.ethBlockNumber().send().getBlockNumber().longValue();
 
@@ -63,7 +71,7 @@ public class Web3 {
     }
 
     private static Web3j init() {
-        refreshToken();
+//        refreshToken();
         return Web3j.build(httpService);
     }
 

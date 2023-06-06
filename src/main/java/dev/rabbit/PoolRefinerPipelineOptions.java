@@ -19,7 +19,7 @@ public interface PoolRefinerPipelineOptions extends PipelineOptions {
 
     void setQueryString(ValueProvider<String> value);
 
-    @Default.Integer(100)
+    @Default.Integer(1000)
     ValueProvider<Integer> getRpcBatchSize();
 
     void setRpcBatchSize(ValueProvider<Integer> value);
